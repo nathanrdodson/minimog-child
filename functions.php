@@ -10,6 +10,11 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Define IMOK Assets Version
+ */
+define('IMOK_ASSETS_VERSION', '1.0.18');
+
+/**
  * Enqueue parent theme styles and child theme styles
  */
 function minimog_child_enqueue_styles() {
@@ -23,6 +28,10 @@ function minimog_child_enqueue_styles() {
         array('parent-style'),
         wp_get_theme()->get('Version')
     );
+
+    // Add IMOK styles and scripts
+    wp_enqueue_style('imokcss', get_stylesheet_directory_uri() . '/scss/custom.css', array(), IMOK_ASSETS_VERSION);
+    wp_enqueue_script('imokjs', get_stylesheet_directory_uri() . '/imok.js', array(), IMOK_ASSETS_VERSION);
 }
 add_action('wp_enqueue_scripts', 'minimog_child_enqueue_styles');
 
@@ -41,7 +50,8 @@ function minimog_child_setup() {
         '/assets/js',
         '/assets/images',
         '/woocommerce/myaccount',
-        '/includes'
+        '/includes',
+        '/scss'
     );
     
     foreach ($directories as $directory) {
@@ -80,8 +90,9 @@ function minimog_child_theme_activation() {
 }
 add_action('after_switch_theme', 'minimog_child_theme_activation');
 
-
-
+/**
+ * Add Google Analytics view_item event to product pages
+ */
 function add_view_item_link_to_footer() {
     if (is_product()) {
         global $post;
@@ -105,24 +116,20 @@ function add_view_item_link_to_footer() {
         <?php
     }
 }
-
 add_action('wp_footer', 'add_view_item_link_to_footer');
 
-
-function live_chat()
-{
+/**
+ * Add LiveChat script to site
+ */
+function live_chat() {
     ?>
     <script>
-
         window.__lc = window.__lc || {};
-
         window.__lc.license = 16914771;
-
         ;(function (n, t, c) {
             function i(n) {
                 return e._h ? e._h.apply(null, n) : e._q.push(n)
             }
-
             var e = {
                 _q: [], _h: null, _v: "2.0", on: function () {
                     i(["on", c.call(arguments)])
@@ -142,28 +149,22 @@ function live_chat()
             };
             !n.__lc.asyncInit && e.init(), n.LiveChatWidget = n.LiveChatWidget || e
         }(window, document, [].slice))
-
     </script>
-
     <noscript><a href="https://www.livechat.com/chat-with/16914771/" rel="nofollow">Chat with us</a>, powered by <a
                 href="https://www.livechat.com/?welcome" rel="noopener nofollow" target="_blank">LiveChat</a></noscript>
     <?php
-
 }
-
 add_action('wp_head', 'live_chat');
 
-
-// Approved order status set based on order items (if no cups in order set to approved)
-function check_order_products($order_id)
-{
+/**
+ * Set artwork status to approved if no cups in order
+ */
+function check_order_products($order_id) {
     $order = wc_get_order($order_id);
-
     $all_items_in_lids_category = false;
 
     foreach ($order->get_items() as $item_id => $item) {
         $product_id = $item->get_product_id();
-
         if (has_term('cups', 'product_cat', $product_id)) {
             $all_items_in_lids_category = true;
             break;
@@ -174,27 +175,24 @@ function check_order_products($order_id)
         update_field('artwork_status', 'approved', $order_id);
     }
 }
-
 add_action('woocommerce_order_status_on-hold', 'check_order_products');
 
-//Add reseller user role
-function add_reseller_role()
-{
+/**
+ * Add reseller user role
+ */
+function add_reseller_role() {
     $wp_roles = wp_roles();
-
     $customerRole = $wp_roles->get_role('customer'); // Copy customer role capabilities
-
     $role = 'reseller';
     $display_name = 'Reseller';
     add_role($role, $display_name, $customerRole->capabilities);
 }
+add_action('init', 'add_reseller_role');
 
-//add_action('init', 'add_reseller_role');
-
-
-//No tax for Reseller users
-function wc_diff_rate_for_user($tax_class, $product)
-{
+/**
+ * No tax for Reseller users
+ */
+function wc_diff_rate_for_user($tax_class, $product) {
     // Getting the current user
     $current_user = wp_get_current_user();
     $current_user_data = get_userdata($current_user->ID);
@@ -206,13 +204,42 @@ function wc_diff_rate_for_user($tax_class, $product)
         return $tax_class;
     }
 }
-
 add_filter('woocommerce_product_get_tax_class', 'wc_diff_rate_for_user', 10, 2);
 add_filter('woocommerce_product_variation_get_tax_class', 'wc_diff_rate_for_user', 10, 2);
 
-// Add custom order statuses
-function add_custom_order_statuses()
-{
+/**
+ * Disable updates for specific plugins
+ */
+function custom_disable_plugin_updates_and_display($value) {
+    $pluginsToDisableUpdates = [
+        'payment-gateway-stripe-and-woocommerce-integration/payment-gateway-stripe-and-woocommerce-integration.php',
+        'koala-order-chat-for-woocommerce/class-af-communication-main.php',
+    ];
+
+    if (isset($value) && is_object($value)) {
+        foreach ($pluginsToDisableUpdates as $plugin) {
+            if (isset($value->response[$plugin])) {
+                unset($value->response[$plugin]);
+            }
+        }
+    }
+
+    add_filter('plugin_auto_update_setting_html', function ($html, $plugin_file) use ($pluginsToDisableUpdates) {
+        if (in_array($plugin_file, $pluginsToDisableUpdates, true)) {
+            $html = '<span style="color:red;">Auto-Updates DISABLED</span>';
+        }
+
+        return $html;
+    }, 10, 2);
+
+    return $value;
+}
+add_filter('site_transient_update_plugins', 'custom_disable_plugin_updates_and_display', 10, 1);
+
+/**
+ * Add custom order statuses
+ */
+function add_custom_order_statuses() {
     register_post_status('wc-pending-review', array(
         'label' => _x('Pending Review', 'Order status', 'woocommerce'),
         'public' => true,
@@ -258,12 +285,12 @@ function add_custom_order_statuses()
         'label_count' => _n_noop('Shipped <span class="count">(%s)</span>', 'Shipped <span class="count">(%s)</span>', 'woocommerce'),
     ));
 }
-
 add_action('init', 'add_custom_order_statuses');
 
-// Display custom order statuses in order list
-function custom_order_statuses($order_statuses)
-{
+/**
+ * Display custom order statuses in order list
+ */
+function custom_order_statuses($order_statuses) {
     $order_statuses['wc-pending-review'] = _x('Pending Review', 'Order status', 'woocommerce');
     $order_statuses['wc-artwork-app-pendi'] = _x('Artwork Approval Pending', 'Order status', 'woocommerce');
     $order_statuses['wc-order-approved'] = _x('Order Approved', 'Order status', 'woocommerce');
@@ -271,24 +298,23 @@ function custom_order_statuses($order_statuses)
     $order_statuses['wc-shipped'] = _x('Shipped', 'Order status', 'woocommerce');
     return $order_statuses;
 }
-
 add_filter('wc_order_statuses', 'custom_order_statuses');
 
+/**
+ * Remove product tabs
+ */
 add_action('wp', function() {
     // Remove the tabs from ALL locations they might be added by the theme
     remove_action('woocommerce_after_single_product', 'woocommerce_output_product_data_tabs', 10);
-    remove_action('woocommerce_single_product_summary', array(Minimog\Woo\Single_Product::instance(), 'output_product_data_tabs_as_toggles'), 100);
-    remove_action('woocommerce_after_single_product', array(Minimog\Woo\Single_Product::instance(), 'output_discussion_tabs'), 10);
+    if (class_exists('Minimog\Woo\Single_Product')) {
+        remove_action('woocommerce_single_product_summary', array(Minimog\Woo\Single_Product::instance(), 'output_product_data_tabs_as_toggles'), 100);
+        remove_action('woocommerce_after_single_product', array(Minimog\Woo\Single_Product::instance(), 'output_discussion_tabs'), 10);
+    }
 }, 100);
 
 /**
- * Inksplosion - Cross-Sells Products Tab
- * 
- * Adds a tab that shows products defined in the Cross-sells section
- * of the Linked Products tab in the product editor
+ * Inksplosion - Add Cross-Sells Products Tab
  */
-
-// Add a new tab to the product tabs
 function inksplosion_add_related_tab($tabs) {
     // Only add the tab if we're on a single product page
     if (!is_product()) {
