@@ -1,0 +1,101 @@
+.single-product .quantity-discount-table-wrap {
+  display: none !important;
+}
+
+.product-action .quick-view-icon, .product-action.woocommerce_loop_add_to_cart_wrap {
+  display: none !important;
+}
+
+.woocommerce-account .woocommerce-orders-table__cell-notify span {
+  font-family: "Lato";
+  font-weight: normal;
+}
+
+.woocommerce-account .woocommerce-button.upload {
+  line-height: 22px;
+}
+
+.remove_add_to_cart .woocommerce_loop_add_to_cart_wrap {
+  display: none !important;
+}
+
+.woocommerce-error {
+  a {
+    color: #454b68 !important;
+    text-decoration: underline !important;
+  }
+}
+
+.minimog-grid {
+  .grid-item {
+    .product-info {
+      @media (max-width: 767px) {
+        text-align: center !important;
+      }
+    }
+  }
+}
+
+.page-id-10 {
+  .minimog-wc-account-content.woocommerce-MyAccount-content {
+    @media (max-width: 400px) {
+      padding: 50px 10px !important;
+    }
+
+    section.woocommerce-order-details {
+      .igd-wc-upload-wrap {
+        .button {
+          span {
+            @media (max-width: 460px) {
+              display: none !important;
+            }
+          }
+        }
+      }
+    }
+
+    .woocommerce-table--order-details.order_details, .woocommerce-customer-details {
+      @media (max-width: 420px) {
+        max-width: 280px !important;
+      }
+    }
+
+  }
+}
+
+#photo-on-left {
+  .elementor-col-100 > .elementor-column-wrap.elementor-element-populated {
+    @media (max-width: 1199px) {
+      padding: 0 50px !important;
+    }
+  }
+}
+
+.page-scroll-up {
+  bottom: 250px !important;
+  right: 10px;
+  @media (max-width: 768px){
+    bottom: 300px !important;
+  }
+}
+#chat-widget-container{
+  @media (max-width: 768px){
+    bottom: 50px !important;
+  }
+}
+
+
+//popup fix
+.modal-promo-popup.style-01 .promo-popup-image{
+  display: flex;
+  align-items: center;
+  img{
+    height: unset;
+    object-fit: unset;
+  }
+}
+
+//Cart z index
+#popup-fly-cart{
+  z-index: 9999999999;
+}

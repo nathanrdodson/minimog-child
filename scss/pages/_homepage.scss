@@ -1,0 +1,39 @@
+.home {
+
+  .slide-bg.image {
+
+    @media (min-width: 2000px) {
+      background-size: cover !important;
+    }
+
+    @media (max-width: 1480px) {
+      background-size: cover !important;
+      background-repeat: no-repeat !important;
+      background-position: center !important;
+
+    }
+  }
+
+
+  .slide-layer {
+    h3.title {
+
+      @media (min-width: 1080px) and (max-width: 1480px) {
+        line-height: 60px !important;
+      }
+
+      @media (max-width: 767px) {
+        line-height: 30px !important;
+      }
+
+    }
+
+    .description {
+      @media (max-width: 767px) {
+        color: black !important;
+      }
+    }
+
+  }
+
+}
