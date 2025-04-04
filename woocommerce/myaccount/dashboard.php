@@ -13,6 +13,13 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+/**
+ * Hook: woocommerce_account_dashboard.
+ *
+ * This ensures proper theme headers will be displayed.
+ */
+do_action('woocommerce_before_account_dashboard');
+
 $current_user = wp_get_current_user();
 $customer = new WC_Customer(get_current_user_id());
 
@@ -33,6 +40,8 @@ $has_shipping_address = !empty($shipping_address['address_1']);
 $downloads = WC()->customer->get_downloadable_products();
 $download_count = count($downloads);
 ?>
+
+<div class="woocommerce-MyAccount-content"><?php // This is the standard WooCommerce container class ?>
 
 <div class="minimog-dashboard">
     <p class="dashboard-welcome">
@@ -155,4 +164,12 @@ $download_count = count($downloads);
  * Always keep this hook to maintain compatibility with WooCommerce
  */
 do_action('woocommerce_account_dashboard');
+
+// Close the standard WooCommerce container class
+?>
+</div>
+
+<?php 
+// This hook is needed for closing theme wrappers
+do_action('woocommerce_after_account_dashboard'); 
 ?>

@@ -129,6 +129,11 @@ function minimog_child_profile_photo_endpoint_content() {
         }
     }
     
+    // Add title for the Profile Photo page
+    add_filter('woocommerce_endpoint_profile-photo_title', function() {
+        return __('Profile Photo', 'minimog-child');
+    });
+    
     // Display the form
     wc_get_template(
         'myaccount/profile-photo.php',
@@ -138,6 +143,13 @@ function minimog_child_profile_photo_endpoint_content() {
     );
 }
 add_action('woocommerce_account_profile-photo_endpoint', 'minimog_child_profile_photo_endpoint_content');
+
+/**
+ * Add the Dashboard page title
+ */
+add_filter('woocommerce_endpoint_dashboard_title', function() {
+    return __('My Account', 'minimog-child');
+});
 
 /**
  * Register and enqueue custom styles and scripts for My Account page

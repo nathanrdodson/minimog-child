@@ -12,10 +12,15 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// Add hook for proper header display
+do_action('woocommerce_before_account_profile-photo');
+
 $user_id = get_current_user_id();
 $avatar_id = get_user_meta($user_id, 'custom_avatar', true);
 $current_avatar_url = $avatar_id ? wp_get_attachment_url($avatar_id) : get_avatar_url($user_id);
 ?>
+
+<div class="woocommerce-MyAccount-content"><?php // Standard WooCommerce wrapper ?>
 
 <div class="woocommerce-profile-photo">
     <h2><?php esc_html_e('Profile Photo', 'minimog-child'); ?></h2>
@@ -67,3 +72,9 @@ $current_avatar_url = $avatar_id ? wp_get_attachment_url($avatar_id) : get_avata
         </div>
     </div>
 </div>
+
+</div><!-- Close .woocommerce-MyAccount-content -->
+<?php
+// Hook for proper footer display
+do_action('woocommerce_after_account_profile-photo');
+?>
